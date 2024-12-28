@@ -107,7 +107,7 @@ def plot_geometry():
         plt.rcParams.update({'font.size': 16})
         plt.subplot(3,1,1)
         plt.plot_date(gps.time, gps.heading, ms=2, alpha= 0.5, label ='Ship heading')  
-        plt.plot_date(gps.time, gps.heading - 60, ms=2, label='HSAS azimuth')
+        plt.plot_date(gps.time, gps.heading - 45, ms=2, label='HSAS azimuth')
         plt.plot_date(gps.time, solar_azimuth, ms=2,label='Solar azimuth')
        # plt.ylim(0,360)
         plt.ylabel('Bearing [deg clockwise]')
@@ -115,10 +115,16 @@ def plot_geometry():
         plt.xticks(rotation=45)
         
         plt.subplot(3,1,2)
-        plt.plot_date(gps.time, abs(solar_azimuth - (gps.heading - 60)), ms=2,alpha= 0.5,label='|HSAS azimuth - Solar aziumth|')
-        plt.plot_date(gps.time, np.ones(len(gps_time))*150, ms=1,alpha=0.4, color='green', label ='150 deg.')
-        plt.plot_date(gps.time, np.ones(len(gps_time))*135, ms=1,alpha=0.4, color='pink', label ='135 deg.')
-        plt.plot_date(gps.time, np.ones(len(gps.time))*90, ms=1, alpha=0.4, color='gray', label = '90 deg.')
+        plt.plot_date(gps.time, RelAz, ms=2,alpha= 0.5,label='Relative azimuth')
+        plt.plot_date(gps.time, np.ones(len(gps_time))*170, ms=1,alpha=0.4, color='black', label =' +/- 170 deg.')
+        plt.plot_date(gps.time, np.ones(len(gps_time))*150, ms=1,alpha=0.4, color='green', label =' +/- 150 deg.')
+        plt.plot_date(gps.time, np.ones(len(gps_time))*135, ms=1,alpha=0.4, color='pink', label ='+/- 135 deg.')
+        plt.plot_date(gps.time, np.ones(len(gps.time))*90, ms=1, alpha=0.4, color='gray', label = '+/- 90 deg.')
+        plt.plot_date(gps.time, -np.ones(len(gps_time))*150, ms=1,alpha=0.4, color='green')
+        plt.plot_date(gps.time, -np.ones(len(gps_time))*135, ms=1,alpha=0.4, color='pink')
+        plt.plot_date(gps.time, -np.ones(len(gps.time))*90, ms=1, alpha=0.4, color='gray')
+        plt.plot_date(gps.time,- np.ones(len(gps_time))*170, ms=1,alpha=0.4, color='black')
+        plt.ylabel('Angle [deg]')
         plt.ylabel('Angle [deg]')
         plt.legend(markerscale=3 )
         plt.xticks(rotation=45)
@@ -135,7 +141,7 @@ def plot_geometry():
         
         plt.tight_layout()
         
-        filename  =  fig_dir + '/'   + 'JC_geometry_' + yyyymmdd + '.png'
+        filename  =  fig_dir + '/'   + 'JC_geometry_offset45' + yyyymmdd + '.png'
         plt.savefig(filename,dpi=300)
         
         
@@ -143,28 +149,28 @@ def plot_geometry():
     
 def plot_geometry_east():
     
-            heading = 45
       
             plt.figure(figsize=(14,20))
-            plt.rcParams.update({'font.size': 16})
+            plt.rcParams.update({'font.size': 14})
             plt.subplot(3,1,1)
             plt.plot_date(gps.time, np.ones(len(gps.time))*heading, ms=2, alpha= 0.5, label ='Ship heading')  
-            plt.plot_date(gps.time, np.ones(len(gps.time))*(heading-60), ms=2, label='HSAS azimuth')
+            plt.plot_date(gps.time, np.ones(len(gps.time))*(heading-45), ms=2, label='HSAS azimuth')
             plt.plot_date(gps.time, solar_azimuth, ms=2,label='Solar azimuth')
            # plt.ylim(0,360)
             plt.ylabel('Bearing [deg clockwise]')
             plt.legend(markerscale=3 )
-            
+           
             plt.subplot(3,1,2)
-            plt.plot_date(gps.time, abs(solar_azimuth - np.ones(len(gps.time))*(heading - 60)), ms=2,alpha= 0.5,label='|HSAS azimuth - Solar aziumth|')
-            plt.plot_date(gps.time, np.ones(len(gps_time))*270, ms=1,alpha=0.4, color='orange', label ='270 (-90) deg.')
-            plt.plot_date(gps.time, np.ones(len(gps_time))*225, ms=1,alpha=0.4, color='pink', label ='225 (-235) deg.')
-            plt.plot_date(gps.time, np.ones(len(gps.time))*210, ms=1, alpha=0.4, color='gray', label = '210 (-150) deg.')          
-            plt.plot_date(gps.time, np.ones(len(gps_time))*150, ms=1,alpha=0.4, color='orange', label ='150 deg.')
-            plt.plot_date(gps.time, np.ones(len(gps_time))*135, ms=1,alpha=0.4, color='pink', label ='135 deg.')
-            plt.plot_date(gps.time, np.ones(len(gps.time))*90, ms=1, alpha=0.4, color='gray', label = '90 deg.')
+            plt.plot_date(gps.time, RelAz, ms=2,alpha= 0.5,label='Relative azimuth')
+            plt.plot_date(gps.time, np.ones(len(gps_time))*150, ms=1,alpha=0.4, color='green', label =' +/- 150 deg.')
+            plt.plot_date(gps.time, np.ones(len(gps_time))*135, ms=1,alpha=0.4, color='pink', label ='+/- 135 deg.')
+            plt.plot_date(gps.time, np.ones(len(gps.time))*90, ms=1, alpha=0.4, color='gray', label = '+/- 90 deg.')
+            plt.plot_date(gps.time, -np.ones(len(gps_time))*150, ms=1,alpha=0.4, color='green')
+            plt.plot_date(gps.time, -np.ones(len(gps_time))*135, ms=1,alpha=0.4, color='pink')
+            plt.plot_date(gps.time, -np.ones(len(gps.time))*90, ms=1, alpha=0.4, color='gray')
             plt.ylabel('Angle [deg]')
             plt.legend(markerscale=3 )
+            #plt.xticks(rotation=45)
              
             plt.subplot(3,1,3)
             plt.plot_date(gps.time, solar_elevation, ms=2,label='Solar elevation')
@@ -174,9 +180,9 @@ def plot_geometry_east():
             plt.ylabel('Angle [deg]')
             plt.xlabel('Time [MM-DD HH]')
             plt.legend(markerscale=3 )
-            plt.xticks(rotation=45)
+          #  plt.xticks(rotation=45)
             
-            filename  =  fig_dir + '/'   + 'JC_geometry_NorthEast_hdg' + yyyymmdd + '.png'
+            filename  =  fig_dir + '/'   + 'JC_geometry_West_hdg' + yyyymmdd + '.png'
             plt.savefig(filename,dpi=300)
             
             return
@@ -262,181 +268,206 @@ if __name__ == '__main__':
     
    
     
-    # directry to ship net CDF files
-    nc_dir = '/mnt/d/AMT31/Optics_all/ShipsData/NetCDF/'
-    fig_dir = '/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_anc/Figs/'
+        # directry to ship net CDF files
+        nc_dir = '/mnt/d/AMT31/Optics_all/ShipsData/NetCDF/'
+        fig_dir = '/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_anc/Figs/'
+        
+        # select data hours to process
+        first_hour =8
+        last_hour= 19
+   
+        #for i in range(12):
+
+        index = -1
+        ########################################
+        # 1.  gps data
+        ############################################
+        
+        gps_dir = nc_dir + 'GPS/'
+        gps_files = glob.glob(gps_dir + '*position-POSMV_GPS*')
+        gps = xr.open_dataset(gps_files[index])
+        gps = gps.load()
+        gps = gps.isel(time=slice(0, -4))
+        gps = gps.interp({'time':gps.time[(first_hour)*3600:(last_hour)*3600]}) # reduce to daylight hours - switch off for 19/12
     
-    # select data hours to process
-    first_hour = 9
-    last_hour= 19
+        lat = gps['lat'].values  
+        lon = gps['long'].values
+        heading = gps['heading'].values
+        #heading = 315*np.ones(len(gps['heading'].values))
+        gps_speed =  gps['gndspeed']*0.514444 # speed m/s (converted from knots)  
+      
     
-    index = -11 #processes previous day of data with -1
+        # convert gps time to seabass time fields
+        gps_time = [] 
+        year = [] 
+        month = [] 
+        day = []
+        hour = []
+        minute = []
+        second =[]
+        print('converting to seabass time fields')
+        for i in range(len(gps.time.values)):
+            timestamp_i = pd.to_datetime(gps.time.values[i])
+            gps_time.append(timestamp_i)
+            year.append(timestamp_i.year)
+            month.append(timestamp_i.month)
+            day.append(timestamp_i.day)
+            hour.append(timestamp_i.hour)
+            minute.append(timestamp_i.minute)
+            second.append(timestamp_i.second)
+        year = np.array(year)
+        month = np.array(month)
+        day = np.array(day)
+        hour = np.array(hour)
+        minute = np.array(minute)
+        second = np.array(second)
     
-    ########################################
-    # 1.  gps data
-    ############################################
-    
-    gps_dir = nc_dir + 'GPS/'
-    gps_files = glob.glob(gps_dir + '*position-POSMV_GPS*')
-    gps = xr.open_dataset(gps_files[index])
-    gps = gps.load()
-    gps = gps.interp({'time':gps.time[first_hour*3600:last_hour*3600]}) # reduce to daylight hours
-    
-    lat = gps['lat'].values  
-    lon = gps['long'].values
-    #heading = gps['heading'].values
-    heading = 90*np.ones(len(gps['heading'].values))
-    gps_speed =  gps['gndspeed']*0.514444 # speed m/s (converted from knots)  
-  
-
-    # convert gps time to seabass time fields
-    gps_time = [] 
-    year = [] 
-    month = [] 
-    day = []
-    hour = []
-    minute = []
-    second =[]
-    print('converting to seabass time fields')
-    for i in range(len(gps.time.values)):
-  
-        timestamp_i = pd.to_datetime(gps.time.values[i])
-        gps_time.append(timestamp_i)
-        year.append(timestamp_i.year)
-        month.append(timestamp_i.month)
-        day.append(timestamp_i.day)
-        hour.append(timestamp_i.hour)
-        minute.append(timestamp_i.minute)
-        second.append(timestamp_i.second)
-    year = np.array(year)
-    month = np.array(month)
-    day = np.array(day)
-    hour = np.array(hour)
-    minute = np.array(minute)
-    second = np.array(second)
-
-    # calculate solar geometry
-    solar_elevation, solar_azimuth = calc_solar_angles(gps_time, lat, lon)
-    HSAS_offset = 60 # mounting on hexagonal scaffold
-    RelAz = solar_azimuth - (gps.heading - HSAS_offset) 
-    
-
-
-    ########################################
-    # 2. Wind data
-    #######################################
-
-    # wind data - sonic (digital)
-    wind_dir = nc_dir + 'WINDSONIC/'
-    wind_files = glob.glob(wind_dir + '*WINDSONIC*')
-    wind = xr.open_dataset(wind_files[index])
-    wind = wind.load()
-    wind = wind.interp({'time':gps_time}) # interpolate wind to gps time
-
-    app_wind_speed = wind.speed.values*0.514444  # apparent windspeed in m/s (converted from knots)
-    app_wind_dir = wind.direct.values
-    true_wind_dir, true_wind_speed = calc_true_wind(heading, gps_speed, app_wind_dir, app_wind_speed) # calc
-    
-
-    # wind data surf (analog)
-    wind_dir = nc_dir + 'SURFMETV3/'
-    wind_surf_files = glob.glob(wind_dir + '*MET-SURFMET*')
-    wind_surf = xr.open_dataset(wind_surf_files[index])
-    wind_surf = wind_surf.load()
-    wind_surf = wind_surf.interp({'time':gps_time}) # interpolate wind to gps time
-    
-    app_wind_speed_surf = wind_surf.speed.values*0.514444  # apparent windspeed in m/s (converted from knots)
-    app_wind_dir_surf = wind_surf.direct.values
-    true_wind_dir_surf, true_wind_speed_surf = calc_true_wind(heading, gps_speed, app_wind_dir_surf, app_wind_speed_surf) # calculate true wind speed
-
-
-    print('Windspeed sonic minus windspeed surf = ')
-    print(str(np.nanmean(np.array(true_wind_speed_surf)-np.array(true_wind_speed))))
-    print('m/s')
-
-
-    ###################
-    # 3. Att - pitch roll tilt
-    ###################
+        # calculate solar geometry
+        solar_elevation, solar_azimuth = calc_solar_angles(gps_time, lat, lon)
+        HSAS_offset = 45 # mounting on octagonal scaffold
+        RelAz = solar_azimuth - (heading - HSAS_offset) 
+      
+        #plot_geometry_east()
+        
+        
      
-    att_dir = nc_dir + 'ATT/'
-    att_files = glob.glob(att_dir + '*shipattitude-POSMV_ATT*')
-    # att_files = glob.glob(att_dir + '*psxn-Seapath330*');
-    att = xr.open_dataset(att_files[index]);
-    att = att.load()    
-    att = att.interp({'time':gps_time}) # interpolate app to gps time
-    roll = att['roll'].values
-    pitch = att['pitch'].values
-    tilt = (180/np.pi)*np.arctan(np.sqrt((roll*np.pi/180)**2 + (pitch*np.pi/180)**2)) # small angle approx
+        ########################################
+        # 2. Wind data
+        #######################################
+    
+        # wind data - sonic (digital)
+        wind_dir = nc_dir + 'WINDSONIC/'
+        wind_files = glob.glob(wind_dir + '*WINDSONIC*')
+        wind = xr.open_dataset(wind_files[index])
+        wind = wind.load()
+        wind = wind.isel(time=slice(0, -4))
+        wind = wind.interp({'time':gps_time}) # interpolate wind to gps time
+    
+        app_wind_speed = wind.speed.values*0.514444  # apparent windspeed in m/s (converted from knots)
+        app_wind_dir = wind.direct.values
+        true_wind_dir, true_wind_speed = calc_true_wind(heading, gps_speed, app_wind_dir, app_wind_speed) # calc
+        
+    
+        # wind data surf (analog)
+        wind_dir = nc_dir + 'SURFMETV3/'
+        wind_surf_files = glob.glob(wind_dir + '*MET-SURFMET*')
+        wind_surf = xr.open_dataset(wind_surf_files[index])
+        wind_surf = wind_surf.load()
+        wind_surf = wind_surf.isel(time=slice(0, -4))
+        wind_surf = wind_surf.interp({'time':gps_time}) # interpolate wind to gps time
+        
+        app_wind_speed_surf = wind_surf.speed.values*0.514444  # apparent windspeed in m/s (converted from knots)
+        app_wind_dir_surf = wind_surf.direct.values
+        true_wind_dir_surf, true_wind_speed_surf = calc_true_wind(heading, gps_speed, app_wind_dir_surf, app_wind_speed_surf) # calculate true wind speed
+    
+    
+        print('Windspeed sonic minus windspeed surf = ')
+        print(str(np.nanmean(np.array(true_wind_speed_surf)-np.array(true_wind_speed))))
+        print('m/s')
+    
+    
+        ###################
+        # 3. Att - pitch roll tilt
+        ###################
+         
+        att_dir = nc_dir + 'ATT/'
+        att_files = glob.glob(att_dir + '*shipattitude-POSMV_ATT*')
+        # att_files = glob.glob(att_dir + '*psxn-Seapath330*');
+        att = xr.open_dataset(att_files[index]);
+        att = att.load()  
+        att = att.isel(time=slice(0, -4))
+        att = att.interp({'time':gps_time}) # interpolate app to gps time
+        roll = att['roll'].values
+        pitch = att['pitch'].values
+        tilt = (180/np.pi)*np.arctan(np.sqrt((roll*np.pi/180)**2 + (pitch*np.pi/180)**2)) # small angle approx
+    
+    
+        ##############################
+        # 4. Add SBE temp anda sal
+        ##############################
+        
+        tsg_dir = nc_dir + 'TSG/'
+        tsg_files = glob.glob(tsg_dir + '*-SBE45-*')
+        tsg = xr.open_dataset(tsg_files[index])
+        tsg = tsg.load()
+        tsg = tsg.isel(time=slice(0, -4))
+        tsg = tsg.interp({'time':gps_time}) # interpolate app to gps time
+        salinity = tsg['salin'].values
+        temperature = tsg['temp_r'].values
+        
+        
+        # e.  Structure SeaBASS file
+        ###############
+    
+        # seabass header
+        yyyymmdd = str(year[0]).zfill(2) + str(month[0]).zfill(2) + str(day[0]).zfill(2)
+        start_time = str(gps_time[0].hour).zfill(2) + ':' + str(minute[0]).zfill(2) + ':' +  str(minute[0]).zfill(2) + '[GMT]' 
+        end_time = str(gps_time[-1].hour).zfill(2) + ':' + str(minute[-1]).zfill(2) + ':' +  str(minute[-1]).zfill(2) + '[GMT]' 
+        min_lat = str(min(lat))[0:7]
+        max_lat = str(max(lat))[0:7]
+        min_lon = str(min(lon))[0:7] 
+        max_lon = str(max(lon))[0:7]
+        
+        station = -9999*np.ones(len(gps.time)).astype(int)
+        
+        sb_header = {
+        "/begin_header": "",
+        "/investigators=": "Tom_Jordan,Gavin_Tilstone",
+        "/affiliations=": "Plymouth_Marine_Laboratory",
+        "/contact=": "tjor@pml.ac.uk,ghti@pml.ac.uk",
+        "/experiment=": "AMT_HSAS",
+        "/cruise=": "AMT_31",
+        "/station=": "NA",
+        "/data_file_name=": "JamesCookAnc_offset45_" + yyyymmdd,
+        "/documents=": "NA", 
+        "/calibration_files=": "NA", #
+        "/data_type=": "above_water",
+        "/data_status=": "final",
+        "/start_date=":  yyyymmdd,
+        "/end_date=":  yyyymmdd,
+        "/start_time=":  start_time,
+        "/end_time=": end_time,
+        "/north_latitude=":  max_lat,
+        "/south_latitude=":  min_lat,
+        "/east_longitude=":  max_lon,
+        "/west_longitude=":  min_lon,
+        "/missing=": "-9999",
+        "/delimiter=": "comma",
+        "/fields=":"station,year,month,day,hour,minute,second,lat,lon,wind,wdir,RelAz,heading,tilt,roll,pitch,SST,sal",
+        "/units=":"none,yyyy,mo,dd,hh,mm,ss,degrees,degrees,m/s,degrees,degrees,degrees,degrees,degrees,degree,degreesC,PSU",
+        "/end_header": "",
+              }
+        
+        # seabass data
+        sb_df = pd.DataFrame()
+        sb_df['station'] = station
+        sb_df['year'] = year
+        sb_df['month'] = month
+        sb_df['day'] = day
+        sb_df['hour'] = hour
+        sb_df['minute'] = minute
+        sb_df['second'] = second
+        sb_df['lat'] = lat
+        sb_df['lon'] = lon
+        sb_df['wind'] = true_wind_speed
+        sb_df['wdir'] = true_wind_dir
+        sb_df['RelAz'] = RelAz
+        sb_df['heading'] = heading
+        sb_df['tilt'] = tilt
+        sb_df['roll'] = roll
+        sb_df['pitch'] = pitch
+        sb_df['roll'] = roll
+        sb_df['Wt'] = temperature
+        sb_df['sal'] = salinity
+        
+        filename = '/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_anc/' + "JamesCookAnc_" + yyyymmdd + '.sb'
+        export_2_seabass(sb_header, sb_df, filename)
+     
+        # plot  functions
+        plot_geometry()
+        plot_windsonic()
+        plot_windsurf()
+        plot_att()
+    
 
-    
-    ################
-    # 4.  Structure SeaBASS file
-    ###############
-
-    # seabass header
-    yyyymmdd = str(year[0]).zfill(2) + str(month[0]).zfill(2) + str(day[0]).zfill(2)
-    start_time = str(gps_time[0].hour).zfill(2) + ':' + str(minute[0]).zfill(2) + ':' +  str(minute[0]).zfill(2) + '[GMT]' 
-    end_time = str(gps_time[-1].hour).zfill(2) + ':' + str(minute[-1]).zfill(2) + ':' +  str(minute[-1]).zfill(2) + '[GMT]' 
-    min_lat = str(min(lat))[0:7]
-    max_lat = str(max(lat))[0:7]
-    min_lon = str(min(lon))[0:7] 
-    max_lon = str(max(lon))[0:7]
-    
-    station = -9999*np.ones(len(gps.time)).astype(int)
-    
-    sb_header = {
-    "/begin_header": "",
-    "/investigators=": "Tom_Jordan,Gavin_Tilstone",
-    "/affiliations=": "Plymouth_Marine_Laboratory",
-    "/contact=": "tjor@pml.ac.uk,ghti@pml.ac.uk",
-    "/experiment=": "AMT_HSAS",
-    "/cruise=": "AMT_31",
-    "/station=": "NA",
-    "/data_file_name=": "JamesCookAnc_" + yyyymmdd,
-    "/documents=": "NA", 
-    "/calibration_files=": "NA", #
-    "/data_type=": "above_water",
-    "/data_status=": "final",
-    "/start_date=":  yyyymmdd,
-    "/end_date=":  yyyymmdd,
-    "/start_time=":  start_time,
-    "/end_time=": end_time,
-    "/north_latitude=":  max_lat,
-    "/south_latitude=":  min_lat,
-    "/east_longitude=":  max_lon,
-    "/west_longitude=":  min_lon,
-    "/missing=": "-9999",
-    "/delimiter=": "comma",
-    "/fields=":"station,year,month,day,hour,minute,second,lat,lon,wind,wdir,RelAz,heading,tilt,roll,pitch",
-    "/units=":"none,yyyy,mo,dd,hh,mm,ss,degrees,degrees,m/s,degrees,degrees,degrees,degrees,degrees,degrees",
-    "/end_header": "",
-          }
-    
-    # seabass data
-    sb_df = pd.DataFrame()
-    sb_df['station'] = station
-    sb_df['year'] = year
-    sb_df['month'] = month
-    sb_df['day'] = day
-    sb_df['hour'] = hour
-    sb_df['minute'] = minute
-    sb_df['second'] = second
-    sb_df['lat'] = lat
-    sb_df['lon'] = lon
-    sb_df['wind'] = true_wind_speed
-    sb_df['wdir'] = true_wind_dir
-    sb_df['RelAz'] = RelAz
-    sb_df['heading'] = heading
-    sb_df['tilt'] = tilt
-    sb_df['roll'] = roll
-    sb_df['pitch'] = pitch
-    
-    filename = '/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_anc/' + "JamesCookAnc_" + yyyymmdd + '.sb'
-    export_2_seabass(sb_header, sb_df, filename)
- 
-    # plot  functions
-    plot_geometry()
-    plot_windsonic()
-    plot_windsurf()
-    plot_att()
+      

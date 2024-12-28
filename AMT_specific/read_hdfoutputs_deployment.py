@@ -17,19 +17,28 @@ import pandas as pd
 import numpy as np
 
 import datetime
-import scipy
+#import scipy
 
 import glob
 
-import matplotlib 
+#import matplotlib 
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import matplotlib.patches as mpatches
-import matplotlib.colors as cl
+#import matplotlib.cm as cm
+#import matplotlib.patches as mpatches
+#import matplotlib.colors as cl
 
 import h5py
-import datetime
+#import datetime
 import subprocess
+
+
+import matplotlib.dates as mdates
+
+
+import cartopy.crs as ccrs
+import cartopy.io.img_tiles as cimgt
+from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
+from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
 
 
 def run_fcheck(fnout, fcheckdir):
@@ -56,33 +65,30 @@ def read_hdf_L2_daily(hdf_files, grp, var):
    
     # print(grp)
     # print(var)
-    
-    f = read_hdf_L2(hdf_files[0], grp, var) # used to test for spectra
-    if len(f.iloc[0]) >100:
-        
+    # f = read_hdf_L2(hdf_files[0], grp, var) # used to test f
+    #print(var)
+    if var == 'Ensemble_N':
         for i in range(len(hdf_files)):  # loop over hdf files in day
-              print(hdf_files[i])
               df_temp = pd.DataFrame(read_hdf_L2(hdf_files[i], grp, var))
-              time = convert_datetime(df_temp['Datetag'].values , df_temp['Timetag2'].values) 
-              df_temp.insert(i, 'time', time)
-              #df_temp.drop(columns = ['Datetag' ,'Timetag2'])
               if i == 0: # append rows to dataframe
                    df_tot = df_temp
               else:
                    df_tot = pd.concat([df_tot, df_temp])
-        
+    else: 
+        for i in range(len(hdf_files)):  # loop over hdf files in day
+                  print(hdf_files[i])
+                  df_temp = pd.DataFrame(read_hdf_L2(hdf_files[i], grp, var))
+                  time = convert_datetime(df_temp['Datetag'].values , df_temp['Timetag2'].values) 
+                  df_temp.insert(0, 'time', time)
+                  #df_temp.drop(columns = ['Datetag' ,'Timetag2'])
+                  if i == 0: # append rows to dataframe
+                       df_tot = df_temp
+                  else:
+                       df_tot = pd.concat([df_tot, df_temp])
+            
         df_tot = df_tot.drop(columns = ['Datetag' ,'Timetag2'])
         df_tot = df_tot.set_index(['time'])
-   
-    else:
-        
-        for i in range(len(hdf_files)):  # loop over hdf files in day
-              df_temp = pd.DataFrame(read_hdf_L2(hdf_files[i], grp, var))
-              if i == 0: # append rows to dataframe
-                   df_tot = df_temp
-              else:
-                   df_tot = pd.concat([df_tot, df_temp])
-        
+            
     return df_tot
 
 
@@ -111,6 +117,7 @@ def read_anc_daily(hdf_files):
               df_tot = pd.concat([df_tot, df_i])
               
       return df_tot
+  
 
 def convert_datetime(date, time):
     ' converts HCP time to date-time format'
@@ -135,12 +142,14 @@ def convert_datetime(date, time):
       
     return datetimes
 
+
 def date_stringformat(time):
   
     date_nosep =[]
     for i in range(len(time)):
         date_nosep.append(str(time.date[i])[0:4]  + str(time.date[i])[5:7] + str(time.date[i])[8:10])
     return date_nosep
+
 
 def loop_over_all_days(hdf_files_list, grp, var):
     'Loop pandas output over all days in deployment'
@@ -180,6 +189,7 @@ def spec_plot(spec, name, units):
        plt.plot(wl, np.zeros(len(np.array(spec).T)),linestyle='dashed',color='k')
        plt.xlabel('Wavelength [nm]')
        plt.ylabel(units)
+       #plt.ylim(0,0.005)
 
        return
 
@@ -205,6 +215,64 @@ def export_2_seabass(header, amt2csv, fnout):
 
     return fnout
 
+def correct_az (df,anc):
+
+    temp  = anc['REL_AZ'].values - 15
+    filtered_df = df[temp > 90]
+    
+    return filtered_df
+
+
+def remove_negatives(Rrs,Rrs_unc,Rrs_M02,anc):
+
+    min_vis = np.min(Rrs_M02.iloc[:,:105], axis=1).values # min value on 400-700 nm >0
+   
+    Rrs = Rrs[min_vis > 0]
+    Rrs_M02 = Rrs_M02[min_vis > 0]
+    Rrs_unc = Rrs_unc[min_vis > 0]
+    anc = anc[min_vis > 0]
+    
+    return  Rrs, Rrs_M02, Rrs_unc, anc
+
+def plot_HSAS_coverage(lat,lon):
+    
+         plt.figure(figsize=(14,8))#
+         plt.rc('font', size=24)
+         
+         min_lat = np.floor(np.nanmin(lat)) - 10
+         max_lat = np.ceil(np.nanmax(lat)) + 10
+         min_lon  = np.min(np.nanmin(lon)) - 20
+         max_lon  = np.max(np.nanmax(lon)) + 20
+         extent = [min_lon, max_lon, min_lat, max_lat] 
+         #extent = [-4.40, -4.10, 50.00, 50.40] 
+         
+         request = cimgt.GoogleTiles(style='satellite')
+         ax = plt.axes(projection=ccrs.PlateCarree())
+         ax.set_extent(extent, ccrs.PlateCarree())
+         ax.add_image(request,6)
+        
+         gl = ax.gridlines(draw_labels=True)
+         gl.xlabels_top = gl.ylabels_right = False
+         gl.xformatter =  LONGITUDE_FORMATTER
+         gl.yformatter =  LATITUDE_FORMATTER
+         gl.xlabel_style = {'size': 18,  'rotation': 0}
+         gl.ylabel_style = {'size': 18,  'rotation': 0}
+         
+         
+         lon_formatter = LongitudeFormatter(zero_direction_label=True)
+         lat_formatter = LatitudeFormatter()
+         ax.xaxis.set_major_formatter(lon_formatter)
+         ax.tick_params(labelsize = 10)
+        
+         #time_plot = [mdates.date2num(time[i]) for i in range(len(time))]
+       #  loc = mdates.AutoDateLocator()
+         #sc = plt.scatter(lon,lat,s=10, c = time_plot, cmap ='jet', vmin = time_plot[0], vmax =time_plot[-1])
+         sc = plt.scatter(lon,lat,s=10, color ='yellow')
+
+         filename  =  '/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_data/Processed/'  + '_Coverage.png'
+         plt.savefig(filename,dpi=300)    
+         
+         return
 
 if __name__ == '__main__':
 
@@ -217,11 +285,12 @@ if __name__ == '__main__':
     # 0. Extract lists of HDF files
     ###############################################
     hdf_files_list = []
-    for k in range(8): # up to jday 349
+    for k in range(0,len(jday_dir)): # up to jday 351
         hdf_files_list.append(glob.glob(jday_dir[k] + '/L2/*hdf*'))
 
     hdf_files = hdf_files_list[0] # use 0th file to output hdf keys (grps and vars)
     f = h5py.File(hdf_files[0], 'r')
+    print(f.keys())
 
     ################################################################
     # 1. Deriving ancillary data  in daily pandas dataframes
@@ -243,18 +312,17 @@ if __name__ == '__main__':
     rel_az = np.array(anc['REL_AZ'])
     wind =  np.array(anc['WINDSPEED'])
     
-    
     ################################################################
     # 2. Deriving spectral data in daily pandas dataframes
     ################################################################
     
-
     ref_var = list(f['REFLECTANCE'].keys())
     print(ref_var)
     Rrs = loop_over_all_days(hdf_files_list, 'REFLECTANCE', 'Rrs_HYPER')
     Rrs_M02 = loop_over_all_days(hdf_files_list, 'REFLECTANCE', 'Rrs_HYPER_M02') # this is best choice for Rrs in SeaBASS
     nlw_M02 = loop_over_all_days(hdf_files_list, 'REFLECTANCE', 'nLw_HYPER_M02')
     Rrs_unc = loop_over_all_days(hdf_files_list, 'REFLECTANCE', 'Rrs_HYPER_unc')
+    
     bincount = loop_over_all_days(hdf_files_list, 'REFLECTANCE', 'Ensemble_N') # Rrs/nLW bin count
     bincount = bincount['N'].values.astype(int)
     
@@ -263,12 +331,66 @@ if __name__ == '__main__':
     spec_plot(Rrs_unc,'Rrs_unc: absolute', '[sr$^{-1}$]')
     
 
+    ################################################################
+    # 3. Derived prdoucts in pandas dataframes
+    ################################################################
+   
+    prod_var = f['DERIVED_PRODUCTS'].keys()
+    print(prod_var)
+    qwip = loop_over_all_days(hdf_files_list, 'DERIVED_PRODUCTS', 'qwip')
+    qaa_bbp = loop_over_all_days(hdf_files_list, 'DERIVED_PRODUCTS', 'qaa_bbp')
+    qaa_adg = loop_over_all_days(hdf_files_list, 'DERIVED_PRODUCTS', 'qaa_adg')
+    chl = loop_over_all_days(hdf_files_list, 'DERIVED_PRODUCTS', 'chlor_a')
+    
+    spec_plot(qaa_bbp ,'bbp (QAA)','[m$^{-1}$]')
+    spec_plot(qaa_adg,'adg (QAA)','[m$^{-1}$]')
+    # spec_plot(Rrs_unc,'Rrs_unc: absolute', '[sr$^{-1}$]')
+    
+    
+    # temporary filters for factory processing
+  
+  #  Rrs = correct_az(Rrs,anc)
+ # #  Rrs_M02 = correct_az(Rrs_M02, anc)
+   # Rrs_unc = correct_az(Rrs_unc, anc)
+   ## bincount = correct_az(bincount,anc)
 
+
+   # anc = correct_az(anc, anc)
+   #anc['REL_AZ'] = anc['REL_AZ'] - 15
+ 
+    #min_vis = np.min(Rrs_M02.iloc[:,91:105],axis=1).values # min value on 650-700 nm >0 (missing spike)
+  #  Rrs = Rrs[min_vis > 0]
+  #  Rrs_M02 = Rrs_M02[min_vis > 0]
+   # Rrs_unc = Rrs_unc[min_vis > 0]
+   ## anc = anc[min_vis > 0]
+   # bincount = bincount[min_vis > 0]
+
+    
+   # time = anc.index
+   # date = date_stringformat(time)
+   
+  # lat = np.array(anc['LATITUDE'])
+   #lon = np.array(anc['LONGITUDE'])
+ 
+   # solar_zen = np.array(anc['SZA'])
+   # solar_az = np.array(anc['SOLAR_AZ'])
+   # rel_az = np.array(anc['REL_AZ'])
+    #wind =  np.array(anc['WINDSPEED'])
+   
+
+    #spec_plot(Rrs,'Rrs','[sr$^{-1}$]')
+   # spec_plot(Rrs_M02,'Rrs_M02','[sr$^{-1}$]')
+    #spec_plot(Rrs_unc,'Rrs_unc: absolute', '[sr$^{-1}$]')
+    
+    
+    plot_HSAS_coverage(lat,lon)
+    
+    breakpoint()
     ###################################
-    #  Formatting fields in SeaBASS file
+    #  4. Formatting fields in SeaBASS file
     ###################################
 
-    start_time = str(Rrs_M02.index[0].time()) + '[GMT]' 
+    start_time = str(Rrs_M02.index[0].time()) +'[GMT]' 
     end_time = str(Rrs_M02.index[-1].time()) + '[GMT]' 
     min_lat = str(min(lat))[0:7]
     max_lat = str(max(lat))[0:7]
@@ -317,19 +439,30 @@ if __name__ == '__main__':
     sb_df['time'] = time.time.astype(str)
     sb_df['lat'] = lat
     sb_df['lon'] = lon
-    sb_df['RelAz'] =  rel_az 
+    sb_df['RelAz'] = rel_az 
     sb_df['SZA'] =  solar_zen
     sb_df['wind'] = wind
     sb_df['bincount'] = bincount
     
-    Rrs_M02 = Rrs_M02.iloc[:,0:121]
-    Rrs_unc= Rrs_unc.iloc[:,0:121] # 120 wl bins matches default HCP seabass files
+  
+    #Rrs_M02 = Rrs_M02.iloc[:, 0:121]
+    #Rrs_unc= Rrs_unc.iloc[:, 0:121] # 120 wl bins matches default HCP seabass files
     
-    sb_df = pd.concat([sb_df, Rrs_M02,Rrs_unc],axis=1,ignore_index=True)
-    # sb_df.replace([np.inf, -np.inf], -int(9999) , inplace=True)
+    #sb_df = pd.concat([sb_df, Rrs_M02,Rrs_unc],axis=1,ignore_index=True)
+   # sb_df.replace([np.inf, -np.inf], -int(9999) , inplace=True)
     
-    filename = '/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_data/Processed/DailyRrsSb/' + "AMT31_Rrs_" + str(date[0]) + "_" + str(date[-1]) + ".sb"
-    export_2_seabass(sb_header, sb_df, filename)
+  #  filename = '/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_data/Processed/RrsSb/' + "AMT31_Rrs_" + str(date[0]) + "_" + str(date[-1]) + "_QC.sb"
+ #   export_2_seabass(sb_header, sb_df, filename)
     
-    fcheckdir = '/mnt/d/AMT31/Optics_all/Source_HyperCP_HSAS/Fcheck/'
-    run_fcheck(filename, fcheckdir)
+  #  fcheckdir = '/mnt/d/AMT31/Optics_all/Source_HyperCP_HSAS/Fcheck/'#
+
+  #  run_fcheck(filename, fcheckdir)
+   
+    Rrs_M02.to_csv('/mnt/d/AMT31/Optics_all/Data/HSAS/HSAS_data/Processed/RrsSb/' + str(date[0]) + "_" + str(date[-1]) + "_QC.csv")
+    
+   # plt.figure()
+    # plt.plot_date(Rrs_M02.index, Rrs['443.4'], ms=2)
+   # plt.plot(Rrs['558.9'].values/Rrs['443.4'].values, ms=2)
+ #  plt.figure()
+ #  plt.plot(qwip.values)
+  # plt.ylim(-0.02,0.02)
